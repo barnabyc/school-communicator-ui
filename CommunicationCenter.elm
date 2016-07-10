@@ -34,11 +34,9 @@ type alias Model =
 
 type alias Message =
   { subject : String
---  , source : String
---  , assignment : String
   , body : String
   , attachments : List Attachment
-  , replies : Replies
+  , replies : Maybe Replies
   , meta : Metadata }
 
 type Replies = Replies (List Message)
@@ -47,8 +45,8 @@ type alias Metadata =
   { readReceipts : List ReadReceipt
   , author : User
   , recipients : List User
-  , created : Date.Date
-  , updated : Date.Date }
+  , created : Maybe Date.Date
+  , updated : Maybe Date.Date }
 
 type alias ReadReceipt =
   { author : User
@@ -76,8 +74,15 @@ newMessage : String -> String -> User -> List User -> Message
 newMessage subject body author recipients =
   { subject = subject
   , body = body
-  , author = author
-  , recipients = recipients
+  , attachments = []
+  , replies = Nothing
+  , meta =
+    { author = author
+    , recipients = recipients
+    , readReceipts = []
+    , created = Nothing
+    , updated = Nothing
+    }
   }
 
 init : Maybe Model -> ( Model, Cmd Msg )
@@ -87,6 +92,7 @@ init savedModel =
 encodeJson : Model -> Json.Encode.Value
 encodeJson model =
   Json.Encode.object
+    []
     -- todo: enumerate rest of model
 
 encodeReplies : Replies -> Json.Encode.Value
@@ -147,7 +153,7 @@ messageList : List Message -> Html Msg
 messageList messages =
   ol
     [ class "messages" ]
-    (List.map (messageView) (messages))
+    (List.map messageView messages)
 
 messageView : Message -> Html Msg
 messageView message =
@@ -166,7 +172,7 @@ messageView message =
         [ text "to" ]
       , ul
         [ class "recipients" ]
-        (List.map (messageRecipient) (message.meta.recipients))
+        (List.map messageRecipient message.meta.recipients)
       , div
         [ class "body"
         , text message.body ]
