@@ -134,25 +134,22 @@ messageView message =
   li
     [ classList [ ("unread", True), ("message", True)]] -- todo: unread should be a message property
     [ header []
-      [ span
-        [ class "author" ]
+      [ span [ class "author" ]
         [ text message.meta.author.name ]
-      , span
-        []
+      , span []
         [ text " wrote on " ]
-      , span
-        [ class "created" ]
+      , span [ class "created" ]
         [ text (formatDate message.meta.created) ]
-      , span
-        []
+      , span []
         [ text " to " ]
-      , ul
-        [ class "recipients" ]
+      , ul [ class "recipients" ]
         (formatRecipients message.meta.recipients)
-      , div
-        [ class "body" ]
+      , div [ class "body" ]
         [ text message.body ]
       ]
+    , ol [ class "replies" ]
+      (formatReplies message.replies)
+
     ]
 
 messageRecipient : User -> Html Msg
@@ -181,8 +178,13 @@ formatDate date =
     year = toString (Date.year date)
     month = toString (Date.month date)
     day = toString (Date.day date)
+
+    hour = toString (Date.hour date)
+    minute = toString (Date.minute date)
+
+    time = hour ++ ":" ++ minute
   in
-    month ++ "/" ++ day ++ "/" ++ year
+    month ++ "/" ++ day ++ "/" ++ year ++ " at " ++ time
 
 formatRecipients : List User -> List (Html Msg)
 formatRecipients recipients =
@@ -196,5 +198,8 @@ formatRecipients recipients =
     else
       (List.map messageRecipient recipients)
 
+formatReplies : Maybe Replies -> List (Html Msg)
+formatReplies replies =
+  Maybe.withDefault [] (List.map messageView replies)
 
 
