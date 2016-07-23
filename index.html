@@ -8229,22 +8229,6 @@ var _barnabyc$school_communicator_ui$Main$User = F2(
 	function (a, b) {
 		return {uuid: a, name: b};
 	});
-var _barnabyc$school_communicator_ui$Main$dummyReply = {
-	subject: '',
-	body: 'Happy Birthday, Mom!',
-	attachments: _elm_lang$core$Native_List.fromArray(
-		[]),
-	replies: _elm_lang$core$Maybe$Nothing,
-	meta: {
-		readReceipts: _elm_lang$core$Native_List.fromArray(
-			[]),
-		author: A2(_barnabyc$school_communicator_ui$Main$User, '987zyx654wvu', 'Bibs'),
-		recipients: _elm_lang$core$Native_List.fromArray(
-			[]),
-		created: _elm_lang$core$Date$fromTime(1468125229591),
-		updated: _elm_lang$core$Maybe$Nothing
-	}
-};
 var _barnabyc$school_communicator_ui$Main$user = A2(_barnabyc$school_communicator_ui$Main$User, '', '');
 var _barnabyc$school_communicator_ui$Main$formatRecipients = function (recipients) {
 	var count = _elm_lang$core$List$length(recipients);
@@ -8328,8 +8312,19 @@ var _barnabyc$school_communicator_ui$Main$messageView = function (message) {
 							[
 								_elm_lang$html$Html$text(message.body)
 							]))
-					]))
+					])),
+				A2(
+				_elm_lang$html$Html$ol,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('replies')
+					]),
+				_barnabyc$school_communicator_ui$Main$formatReplies(message.replies))
 			]));
+};
+var _barnabyc$school_communicator_ui$Main$formatReplies = function (_p0) {
+	var _p1 = _p0;
+	return A2(_elm_lang$core$List$map, _barnabyc$school_communicator_ui$Main$messageView, _p1._0);
 };
 var _barnabyc$school_communicator_ui$Main$messageList = function (messages) {
 	return A2(
@@ -8365,15 +8360,32 @@ var _barnabyc$school_communicator_ui$Main$view = function (model) {
 var _barnabyc$school_communicator_ui$Main$Replies = function (a) {
 	return {ctor: 'Replies', _0: a};
 };
+var _barnabyc$school_communicator_ui$Main$dummyReply = {
+	subject: '',
+	body: 'Happy Birthday, Mom!',
+	attachments: _elm_lang$core$Native_List.fromArray(
+		[]),
+	replies: _barnabyc$school_communicator_ui$Main$Replies(
+		_elm_lang$core$Native_List.fromArray(
+			[])),
+	meta: {
+		readReceipts: _elm_lang$core$Native_List.fromArray(
+			[]),
+		author: A2(_barnabyc$school_communicator_ui$Main$User, '987zyx654wvu', 'Bibs'),
+		recipients: _elm_lang$core$Native_List.fromArray(
+			[]),
+		created: _elm_lang$core$Date$fromTime(1468125229591),
+		updated: _elm_lang$core$Maybe$Nothing
+	}
+};
 var _barnabyc$school_communicator_ui$Main$dummyMessage = {
 	subject: 'Birthdays',
 	body: 'It\'s my birthday!',
 	attachments: _elm_lang$core$Native_List.fromArray(
 		[]),
-	replies: _elm_lang$core$Maybe$Just(
-		_barnabyc$school_communicator_ui$Main$Replies(
-			_elm_lang$core$Native_List.fromArray(
-				[_barnabyc$school_communicator_ui$Main$dummyReply]))),
+	replies: _barnabyc$school_communicator_ui$Main$Replies(
+		_elm_lang$core$Native_List.fromArray(
+			[_barnabyc$school_communicator_ui$Main$dummyReply, _barnabyc$school_communicator_ui$Main$dummyReply, _barnabyc$school_communicator_ui$Main$dummyReply])),
 	meta: {
 		readReceipts: _elm_lang$core$Native_List.fromArray(
 			[]),

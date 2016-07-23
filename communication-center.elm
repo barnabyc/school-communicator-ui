@@ -22,7 +22,7 @@ dummyMessage =
   { subject = "Birthdays"
   , body = "It's my birthday!"
   , attachments = []
-  , replies = Just (Replies [ dummyReply ])
+  , replies = Replies [ dummyReply, dummyReply, dummyReply ]
   , meta =
     { readReceipts = []
     , author = User "123abc456def" "Admin"
@@ -37,7 +37,7 @@ dummyReply =
   { subject = ""
   , body = "Happy Birthday, Mom!"
   , attachments = []
-  , replies = Nothing
+  , replies = Replies []
   , meta =
     { readReceipts = []
     , author = User "987zyx654wvu" "Bibs"
@@ -65,7 +65,7 @@ type alias Message =
   { subject : String
   , body : String
   , attachments : List Attachment
-  , replies : Maybe Replies
+  , replies : Replies
   , meta : Metadata }
 
 type Replies = Replies (List Message)
@@ -197,11 +197,8 @@ formatRecipients recipients =
     else
       (List.map messageRecipient recipients)
 
-formatReplies : Maybe Replies -> List (Html Msg)
-formatReplies replies =
-  let
-    foo = Maybe.map (List.map messageView) replies
-  in
-    Maybe.withDefault [] foo
+formatReplies : Replies -> List (Html Msg)
+formatReplies (Replies replies) =
+  List.map messageView replies
 
 
