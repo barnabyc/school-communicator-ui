@@ -149,7 +149,6 @@ messageView message =
       ]
     , ol [ class "replies" ]
       (formatReplies message.replies)
-
     ]
 
 messageRecipient : User -> Html Msg
@@ -200,6 +199,9 @@ formatRecipients recipients =
 
 formatReplies : Maybe Replies -> List (Html Msg)
 formatReplies replies =
-  Maybe.withDefault [] (List.map messageView replies)
+  let
+    foo = Maybe.map (List.map messageView) replies
+  in
+    Maybe.withDefault [] foo
 
 
