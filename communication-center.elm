@@ -3,6 +3,9 @@ import Html.App as Html
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Date
+import Date.Extra.Create exposing ( dateFromFields )
+import Date.Extra.Utils exposing ( isoWeek )
+import List.Extra exposing ( groupWhile )
 
 main =
   Html.beginnerProgram
@@ -15,7 +18,7 @@ main =
 
 dummyModel : Model
 dummyModel =
-  Model [ dummyMessage ] user
+  Model [ dummyMessage, dummyMessage, dummyMessage ] user
 
 dummyMessage : Message
 dummyMessage =
@@ -27,7 +30,7 @@ dummyMessage =
     { readReceipts = []
     , author = User "123abc456def" "Admin"
     , recipients = []
-    , created = Date.fromTime 1468124885089
+    , created = dateFromFields 2016 6 1 1 1 1 1 -- Date.fromTime 1468124885089
     , updated = Nothing
     }
   }
@@ -93,7 +96,6 @@ type alias User =
   { uuid : String
   , name : String }
 
-
 -- UPDATE
 
 type Msg
@@ -125,9 +127,12 @@ view model =
 
 messageList : List Message -> Html Msg
 messageList messages =
-  ol
-    [ class "messages" ]
-    (List.map messageView messages)
+  let
+    weeksOfMessages = groupWhile (\x y -> snd (isoWeek x.meta.created) == snd (isoWeek y.meta.created)) messages
+  in
+    ol
+      [ class "messages" ]
+      (List.map messageView weeksOfMessages)
 
 messageView : Message -> Html Msg
 messageView message =
