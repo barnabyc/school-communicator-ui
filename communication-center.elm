@@ -30,7 +30,7 @@ dummyMessage =
     { readReceipts = []
     , author = User "123abc456def" "Admin"
     , recipients = []
-    , created = dateFromFields 2016 6 1 1 1 1 1 -- Date.fromTime 1468124885089
+    , created = Date.fromTime 1468124885089 -- dateFromFields 2016 6 1 1 1 1 1
     , updated = Nothing
     }
   }
@@ -127,12 +127,13 @@ view model =
 
 messageList : List Message -> Html Msg
 messageList messages =
-  let
-    weeksOfMessages = groupWhile (\x y -> snd (isoWeek x.meta.created) == snd (isoWeek y.meta.created)) messages
-  in
+  --let
+  --  weeksOfMessages = groupWhile (\x y -> snd (isoWeek x.meta.created) == snd (isoWeek y.meta.created)) messages
+  --in
     ol
       [ class "messages" ]
-      (List.map messageView weeksOfMessages)
+      --(List.map messageView weeksOfMessages)
+      (List.map messageView messages)
 
 messageView : Message -> Html Msg
 messageView message =
