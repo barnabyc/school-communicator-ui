@@ -1,13 +1,17 @@
-const ReactDOM = require('react-dom');
-const React = require('react');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import AuthService from './lib/auth_service'
 
-const Foo = () => {
-  return (
-    <div>[foo]</div>
-  )
-}
+import Welcome from './components/welcome';
+
+// todo: move this to environment
+const AUTH0_CLIENT_ID = '';
+const AUTH0_DOMAIN = '';
+
+const auth = new AuthService(AUTH0_CLIENT_ID, AUTH0_DOMAIN);
 
 ReactDOM.render(
-  <Foo />,
+  <Welcome auth={auth} />,
   document.getElementById('app')
 );
+
