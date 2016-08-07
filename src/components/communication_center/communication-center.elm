@@ -1,116 +1,95 @@
+module Main exposing (..)
+
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Date
-import Date.Extra.Create exposing ( dateFromFields )
-import Date.Extra.Utils exposing ( isoWeek )
-import List.Extra exposing ( groupWhile )
+
+import Http exposing (get, string)
+import Json.Decode as Json
+import Task
+
+import Types exposing (Model, Message, Replies, User, Msg)
+import Formatters exposing (formatDate, formatRecipients, formatReplies)
+import DummyData exposing (dummyModel, dummyMessage, dummyReply)
+
+--import Date.Extra.Create exposing ( dateFromFields )
+--import Date.Extra.Utils exposing ( isoWeek )
+--import List.Extra exposing ( groupWhile )
+
 
 main =
-  Html.beginnerProgram
-    { model = model
+  Html.program
+    { init = init
     , view = view
     , update = update
+    , subscriptions = subscriptions
     }
+  --Html.beginnerProgram
+  --  { model = model
+  --  , view = view
+  --  , update = update
+  --  }
 
--- DUMMY DATA
 
-dummyModel : Model
-dummyModel =
-  Model [ dummyMessage, dummyMessage, dummyMessage ] user
-
-dummyMessage : Message
-dummyMessage =
-  { subject = "Birthdays"
-  , body = "It's my birthday!"
-  , attachments = []
-  , replies = Replies [ dummyReply, dummyReply, dummyReply ]
-  , meta =
-    { readReceipts = []
-    , author = User "123abc456def" "Admin"
-    , recipients = []
-    , created = Date.fromTime 1468124885089 -- dateFromFields 2016 6 1 1 1 1 1
-    , updated = Nothing
-    }
-  }
-
-dummyReply : Message
-dummyReply =
-  { subject = ""
-  , body = "Happy Birthday, Mom!"
-  , attachments = []
-  , replies = Replies []
-  , meta =
-    { readReceipts = []
-    , author = User "987zyx654wvu" "Bibs"
-    , recipients = []
-    , created = Date.fromTime 1468125229591
-    , updated = Nothing
-    }
-  }
-
--- MODEL
+init : (Model, Cmd Msg)
+init =
+  (model, Cmd.none)
 
 model : Model
 model =
   dummyModel
 
-user : User
-user =
-  User "" ""
-
-type alias Model =
-  { messages : List Message
-  , user : User }
-
-type alias Message =
-  { subject : String
-  , body : String
-  , attachments : List Attachment
-  , replies : Replies
-  , meta : Metadata }
-
-type Replies = Replies (List Message)
-
-type alias Metadata =
-  { readReceipts : List ReadReceipt
-  , author : User
-  , recipients : List User
-  , created : Date.Date
-  , updated : Maybe Date.Date }
-
-type alias ReadReceipt =
-  { author : User
-  , created : Date.Date }
-
-type alias Attachment =
-  { image : Image
-  , meta : Metadata }
-
-type alias Image =
-  { url : String
-  , description : String }
-
-type alias User =
-  { uuid : String
-  , name : String }
-
 -- UPDATE
 
-type Msg
-    = NoOp
-    | UpdateField String
-    | UpdateMessage Int String
-    | Add
-    | Delete Int
-    | DeleteComplete
-    | Read Int Bool
-    | ReadAll Bool
 
--- todo: have this actually do something
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  model
+  case msg of
+    --Body body ->
+    --  { model | body = body }
+
+    Types.Fetch ->
+      (model, getMessages)
+
+    Types.FetchSucceed messages ->
+      (model, Cmd.none)
+
+    Types.FetchFail _ ->
+      (model, Cmd.none)
+
+    Types.Post ->
+      (model, postMessage "foo")
+
+    Types.PostSucceed messages ->
+      (model, Cmd.none)
+
+    Types.PostFail _ ->
+      (model, Cmd.none)
+
+-- SUBSCRIPTIONS
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+  Sub.none
+
+
+-- HTTP
+
+
+getMessages : Cmd Msg
+getMessages =
+  Task.perform Types.FetchFail Types.FetchSucceed (Http.get decodeMessages "http://localhost:8080/v1/messages")
+
+postMessage : String -> Cmd Msg
+postMessage body =
+  Task.perform Types.PostFail Types.PostSucceed (Http.post decodeMessages "http://localhost:8080/v1/message" (Http.string """{ "body": "foo" }"""))
+
+decodeMessages : Json.Decoder String
+decodeMessages =
+  Json.string
+
 
 -- VIEW
 
@@ -120,7 +99,8 @@ view model =
     [ class "communication-center wrapper" ]
     [ section
         [ id "content" ]
-        [ messageList model.messages
+        [ button [ onClick Types.Fetch ] [ text "Fetch" ]
+        , messageList model.messages
         , messageEntry
         ]
     ]
@@ -149,12 +129,12 @@ messageView message =
       , span []
         [ text " to " ]
       , ul [ class "recipients" ]
-        (formatRecipients message.meta.recipients)
+        (formatRecipients messageRecipient message.meta.recipients)
       , div [ class "body" ]
         [ text message.body ]
       ]
     , ol [ class "replies" ]
-      (formatReplies message.replies)
+      (formatReplies messageView message.replies)
     ]
 
 messageRecipient : User -> Html Msg
@@ -163,48 +143,10 @@ messageRecipient recipient =
     [ class "recipient" ]
     [ text recipient.name ]
 
-messageEntry : Html msg
+messageEntry : Html Msg
 messageEntry =
   div
     [ class "message-entry" ]
-    [ text "New message here"
-    , input
-      [ type' "text"
-      , placeholder "Something to say?"
-      ]
-      []
+    [ input [ type' "text" , placeholder "Something to say?" ] []
+    , button [ onClick Types.Post ] [ text "Post" ]
     ]
-
--- FORMATTERS
-
-formatDate : Date.Date -> String
-formatDate date =
-  let
-    year = toString (Date.year date)
-    month = toString (Date.month date)
-    day = toString (Date.day date)
-
-    hour = toString (Date.hour date)
-    minute = toString (Date.minute date)
-
-    time = hour ++ ":" ++ minute
-  in
-    month ++ "/" ++ day ++ "/" ++ year ++ " at " ++ time
-
-formatRecipients : List User -> List (Html Msg)
-formatRecipients recipients =
-  let
-    count = List.length recipients
-  in
-    if
-      count == 0
-    then
-      [ messageRecipient (User "" "everyone") ]
-    else
-      (List.map messageRecipient recipients)
-
-formatReplies : Replies -> List (Html Msg)
-formatReplies (Replies replies) =
-  List.map messageView replies
-
-
