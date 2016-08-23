@@ -10,7 +10,7 @@ import Http exposing (get, string)
 import Json.Decode as Json
 import Task
 
-import Types exposing (Model, Message, Replies, User, Msg)
+import Types exposing (Model, Message, Replies, User, Msg(..))
 import Formatters exposing (formatDate, formatRecipients, formatReplies)
 import DummyData exposing (dummyModel, dummyMessage, dummyReply)
 
@@ -50,22 +50,22 @@ update msg model =
     --Body body ->
     --  { model | body = body }
 
-    Types.Fetch ->
+    Fetch ->
       (model, getMessages)
 
-    Types.FetchSucceed messages ->
+    FetchSucceed messages ->
       (model, Cmd.none)
 
-    Types.FetchFail _ ->
+    FetchFail _ ->
       (model, Cmd.none)
 
-    Types.Post ->
+    Post ->
       (model, postMessage "foo")
 
-    Types.PostSucceed messages ->
+    PostSucceed messages ->
       (model, Cmd.none)
 
-    Types.PostFail _ ->
+    PostFail _ ->
       (model, Cmd.none)
 
 -- SUBSCRIPTIONS
@@ -80,11 +80,11 @@ subscriptions model =
 
 getMessages : Cmd Msg
 getMessages =
-  Task.perform Types.FetchFail Types.FetchSucceed (Http.get decodeMessages "http://localhost:8080/v1/messages")
+  Task.perform FetchFail FetchSucceed (Http.get decodeMessages "http://localhost:8080/v1/messages")
 
 postMessage : String -> Cmd Msg
 postMessage body =
-  Task.perform Types.PostFail Types.PostSucceed (Http.post decodeMessages "http://localhost:8080/v1/message" (Http.string """{ "body": "foo" }"""))
+  Task.perform PostFail PostSucceed (Http.post decodeMessages "http://localhost:8080/v1/message" (Http.string """{ "body": "foo" }"""))
 
 decodeMessages : Json.Decoder String
 decodeMessages =
@@ -99,7 +99,7 @@ view model =
     [ class "communication-center wrapper" ]
     [ section
         [ id "content" ]
-        [ button [ onClick Types.Fetch ] [ text "Fetch" ]
+        [ button [ onClick Fetch ] [ text "Fetch" ]
         , messageList model.messages
         , messageEntry
         ]
@@ -148,5 +148,5 @@ messageEntry =
   div
     [ class "message-entry" ]
     [ input [ type' "text" , placeholder "Something to say?" ] []
-    , button [ onClick Types.Post ] [ text "Post" ]
+    , button [ onClick Post ] [ text "Post" ]
     ]
