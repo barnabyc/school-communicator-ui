@@ -26,12 +26,6 @@ main =
     , update = update
     , subscriptions = subscriptions
     }
-  --Html.beginnerProgram
-  --  { model = model
-  --  , view = view
-  --  , update = update
-  --  }
-
 
 init : (Model, Cmd Msg)
 init =
@@ -47,9 +41,6 @@ model =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    --Body body ->
-    --  { model | body = body }
-
     Fetch ->
       (model, getMessages)
 
@@ -67,6 +58,9 @@ update msg model =
 
     PostFail _ ->
       (model, Cmd.none)
+
+    --BodyChange body ->
+    --  { foo | body = body }
 
 -- SUBSCRIPTIONS
 

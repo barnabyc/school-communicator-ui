@@ -10,16 +10,7 @@ type Msg
   | Post --String
   | PostSucceed String
   | PostFail Http.Error
-  --| Body String
-
-    --= NoOp
-    --| UpdateField String
-    --| UpdateMessage Int String
-    --| Add
-    --| Delete Int
-    --| DeleteComplete
-    --| Read Int Bool
-    --| ReadAll Bool
+  --| BodyChange String
 
 type alias Model =
   { messages : List Message
