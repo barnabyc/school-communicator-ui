@@ -6,9 +6,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Date
 
-import Http exposing (get, string)
+import AuthenticatedHttp exposing (get, post)
 import Json.Decode as Json
-import Task
 
 import Types exposing (Model, Message, Replies, User, Msg(..))
 import Formatters exposing (formatDate, formatRecipients, formatReplies)
@@ -74,11 +73,22 @@ subscriptions model =
 
 getMessages : Cmd Msg
 getMessages =
-  Task.perform FetchFail FetchSucceed (Http.get decodeMessages "http://localhost:8080/v1/messages")
+  get
+    "foo"
+    "/v1/messages"
+    FetchFail
+    FetchSucceed
+    decodeMessages
 
 postMessage : String -> Cmd Msg
 postMessage body =
-  Task.perform PostFail PostSucceed (Http.post decodeMessages "http://localhost:8080/v1/message" (Http.string """{ "body": "foo" }"""))
+  post
+    "foo"
+    "/v1/message"
+    """{ "body": "foo" }""" -- todo: proper Json encode
+    PostFail
+    PostSucceed
+    decodeMessages
 
 decodeMessages : Json.Decoder String
 decodeMessages =
