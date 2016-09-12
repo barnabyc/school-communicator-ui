@@ -5,10 +5,10 @@ import Http
 
 type Msg
   = Fetch
-  | FetchSucceed String
+  | FetchSucceed (List Message)
   | FetchFail Http.Error
   | Post --String
-  | PostSucceed String
+  | PostSucceed (List Message)
   | PostFail Http.Error
   --| BodyChange String
 
