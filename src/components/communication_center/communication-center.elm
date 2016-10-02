@@ -1,4 +1,4 @@
-module Main exposing (..)
+module CommunicationCenter exposing (..)
 
 import Html exposing (..)
 import Html.App as Html

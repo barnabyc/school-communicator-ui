@@ -27,9 +27,7 @@ dummyMessage =
         { readReceipts = []
         , author = User "123abc456def" "Admin"
         , recipients = []
-        , created =
-            Date.fromTime 1468124885089
-            -- dateFromFields 2016 6 1 1 1 1 1
+        , created = Date.fromTime 1468124885089
         , updated = Nothing
         }
     }
