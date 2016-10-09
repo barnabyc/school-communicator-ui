@@ -60,18 +60,67 @@ type alias Subject =
 -- data
 
 
+reading : Subject
+reading =
+    Subject 1 "Reading"
+
+
+writing : Subject
+writing =
+    Subject 2 "Writing"
+
+
+mathematics : Subject
+mathematics =
+    Subject 3 "Mathematics"
+
+
+science : Subject
+science =
+    Subject 4 "Science"
+
+
+socialStudies : Subject
+socialStudies =
+    Subject 5 "Social Studies"
+
+
+foreignLanguages : Subject
+foreignLanguages =
+    Subject 6 "Foreign Languages"
+
+
+arts : Subject
+arts =
+    Subject 7 "The Arts"
+
+
+personalCare : Subject
+personalCare =
+    Subject 8 "Personal Care"
+
+
+other : Subject
+other =
+    Subject 99 "Other"
+
+
 subjects : List Subject
 subjects =
-    [ Subject 1 "Reading"
-    , Subject 2 "Writing"
-    , Subject 3 "Mathematics"
-    , Subject 4 "Science"
-    , Subject 5 "Social Studies"
-    , Subject 6 "Foreign Languages"
-    , Subject 7 "The Arts"
-    , Subject 8 "Personal Care"
-    , Subject 99 "Other"
+    [ reading
+    , writing
+    , mathematics
+    , science
+    , socialStudies
+    , foreignLanguages
+    , arts
+    , personalCare
+    , other
     ]
+
+
+
+-- dummy data
 
 
 dummyPlan : Plan
@@ -109,21 +158,21 @@ dummyAssignments =
       , day = Date.Mon
       , name = "Chapter One"
       , description = ""
-      , subject = Subject 1 "Reading"
+      , subject = reading
       }
     , { id = "pqr789"
       , complete = False
       , day = Date.Tue
       , name = "Chapter Two"
       , description = ""
-      , subject = Subject 1 "Reading"
+      , subject = reading
       }
     , { id = "stu012"
       , complete = False
       , day = Date.Tue
       , name = "Chapter Two"
       , description = ""
-      , subject = Subject 2 "Writing"
+      , subject = writing
       }
     ]
 
@@ -140,6 +189,7 @@ view plan =
             [ id "content" ]
             [ picker
             , weekHeader
+            , works plan.work
             , subjectChoices
             ]
         ]
@@ -166,10 +216,32 @@ weekHeader =
         ]
 
 
+works : List Work -> Html Msg
+works works =
+    ol [ class "works" ]
+        (List.map work works)
+
+
+work : Work -> Html Msg
+work work =
+    li [ class "work" ]
+        [ text work.source.title ]
+
+
+
+-- modals
+
+
 subjectChoices : Html Msg
 subjectChoices =
-    div []
-        [ text "[subjects]" ]
+    ol [ class "subject-choices" ]
+        (List.map subjectChoice subjects)
+
+
+subjectChoice : Subject -> Html Msg
+subjectChoice subject =
+    li [ class "subject" ]
+        [ text subject.name ]
 
 
 
