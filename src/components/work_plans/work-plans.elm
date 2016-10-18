@@ -130,14 +130,24 @@ dummyPlan =
         "Stephen"
     , week =
         dateFromFields 2016 Date.Jan 1 1 1 1 1
-    , work = [ dummyWork ]
+    , work = [ dummyWork, dummyWork2 ]
     }
 
 
 dummyWork : Work
 dummyWork =
+    -- Bunnicula
     { id = "xyz987"
     , source = dummySource
+    , assignments = dummyAssignments
+    }
+
+
+dummyWork2 : Work
+dummyWork2 =
+    -- Great Expectations
+    { id = "foo111"
+    , source = dummySource2
     , assignments = dummyAssignments
     }
 
@@ -147,6 +157,15 @@ dummySource =
     { id = "xyz987"
     , title = "Bunnicula"
     , author = "Foo Bar"
+    , description = ""
+    }
+
+
+dummySource2 : Source
+dummySource2 =
+    { id = "xyz987"
+    , title = "Great Expectations"
+    , author = "Tinkles McGee"
     , description = ""
     }
 
@@ -189,7 +208,7 @@ view plan =
             [ id "content" ]
             [ picker
             , weekHeader
-            , works plan.work
+            , subjectsGroupings plan.work
             , subjectChoices
             ]
         ]
@@ -216,16 +235,47 @@ weekHeader =
         ]
 
 
-works : List Work -> Html Msg
-works works =
-    ol [ class "works" ]
-        (List.map work works)
+subjectsGroupings : List Work -> Html Msg
+subjectsGroupings works =
+    ol [ class "subject-groupings" ]
+        (List.map (workItems works) subjects)
 
 
-work : Work -> Html Msg
-work work =
+workItems : List Work -> Subject -> Html Msg
+workItems works subject =
+    let
+        -- todo programattically
+        filteredWorks =
+            works
+    in
+        li [ class "subject" ]
+            [ text subject.name
+            , ol [ class "works" ]
+                (List.map (work subject) filteredWorks)
+            ]
+
+
+work : Subject -> Work -> Html Msg
+work subject work =
     li [ class "work" ]
-        [ text work.source.title ]
+        [ text work.source.title
+        , assignments (getAssignmentsForSubject subject work.assignments)
+        ]
+
+
+assignments : List Assignment -> Html Msg
+assignments assignments =
+    ol [ class "assignments" ]
+        (List.map assignment assignments)
+
+
+assignment : Assignment -> Html Msg
+assignment assignment =
+    li [ class "assignment" ]
+        [ text assignment.name
+        , text ", "
+        , text assignment.subject.name
+        ]
 
 
 
@@ -246,6 +296,20 @@ subjectChoice subject =
 
 
 -- helpers
+--getWorksForSubject : Subject -> List Work -> List Work
+--getWorksForSubject subject works =
+--    List.map (filterWorksBySubject subject) works
+--    let
+--        assignment =
+--            List.head work.assignemnts
+--    in
+--        case assignment of
+--            Just assignment ->
+--                List.filter (\work -> assignment.subject.id == subject.id) works
+--            Nothing ->
+--                []
+--filterWorksBySubject : Subject -> Work -> Bool
+--filterWorksBySubject subject work =
 
 
 getAssignmentsForSubject : Subject -> List Assignment -> List Assignment
