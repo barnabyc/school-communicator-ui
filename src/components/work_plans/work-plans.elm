@@ -238,21 +238,17 @@ weekHeader =
 subjectsGroupings : List Work -> Html Msg
 subjectsGroupings works =
     ol [ class "subject-groupings" ]
+        -- todo get list of subjects from actual work assignments
         (List.map (workItems works) subjects)
 
 
 workItems : List Work -> Subject -> Html Msg
 workItems works subject =
-    let
-        -- todo programattically
-        filteredWorks =
-            works
-    in
-        li [ class "subject" ]
-            [ text subject.name
-            , ol [ class "works" ]
-                (List.map (work subject) filteredWorks)
-            ]
+    li [ class "subject" ]
+        [ text subject.name
+        , ul [ class "works" ]
+            (List.map (work subject) works)
+        ]
 
 
 work : Subject -> Work -> Html Msg
