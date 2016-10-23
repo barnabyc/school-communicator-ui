@@ -5,6 +5,7 @@ import Html.App as Html
 import Html.Attributes exposing (..)
 import Date
 import Date.Extra.Create exposing (..)
+import Set
 
 
 -- types
@@ -51,9 +52,7 @@ type alias Assignment =
 
 
 type alias Subject =
-    { id : Int
-    , name : String
-    }
+    ( Int, String )
 
 
 
@@ -62,47 +61,47 @@ type alias Subject =
 
 reading : Subject
 reading =
-    Subject 1 "Reading"
+    ( 1, "Reading" )
 
 
 writing : Subject
 writing =
-    Subject 2 "Writing"
+    ( 2, "Writing" )
 
 
 mathematics : Subject
 mathematics =
-    Subject 3 "Mathematics"
+    ( 3, "Mathematics" )
 
 
 science : Subject
 science =
-    Subject 4 "Science"
+    ( 4, "Science" )
 
 
 socialStudies : Subject
 socialStudies =
-    Subject 5 "Social Studies"
+    ( 5, "Social Studies" )
 
 
 foreignLanguages : Subject
 foreignLanguages =
-    Subject 6 "Foreign Languages"
+    ( 6, "Foreign Languages" )
 
 
 arts : Subject
 arts =
-    Subject 7 "The Arts"
+    ( 7, "The Arts" )
 
 
 personalCare : Subject
 personalCare =
-    Subject 8 "Personal Care"
+    ( 8, "Personal Care" )
 
 
 other : Subject
 other =
-    Subject 99 "Other"
+    ( 99, "Other" )
 
 
 subjects : List Subject
@@ -139,7 +138,7 @@ dummyWork =
     -- Bunnicula
     { id = "xyz987"
     , source = dummySource
-    , assignments = dummyAssignments
+    , assignments = dummyAssignments1
     }
 
 
@@ -148,7 +147,7 @@ dummyWork2 =
     -- Great Expectations
     { id = "foo111"
     , source = dummySource2
-    , assignments = dummyAssignments
+    , assignments = dummyAssignments2
     }
 
 
@@ -170,8 +169,8 @@ dummySource2 =
     }
 
 
-dummyAssignments : List Assignment
-dummyAssignments =
+dummyAssignments1 : List Assignment
+dummyAssignments1 =
     [ { id = "mno456"
       , complete = True
       , day = Date.Mon
@@ -186,10 +185,64 @@ dummyAssignments =
       , description = ""
       , subject = reading
       }
+    , { id = "pqr789"
+      , complete = False
+      , day = Date.Wed
+      , name = "Chapter Three"
+      , description = ""
+      , subject = reading
+      }
+    , { id = "pqr789"
+      , complete = False
+      , day = Date.Thu
+      , name = "Chapter Four"
+      , description = ""
+      , subject = reading
+      }
     , { id = "stu012"
       , complete = False
       , day = Date.Tue
       , name = "Chapter Two"
+      , description = ""
+      , subject = writing
+      }
+    , { id = "fjg123"
+      , complete = False
+      , day = Date.Wed
+      , name = "Chapter Three"
+      , description = ""
+      , subject = writing
+      }
+    ]
+
+
+dummyAssignments2 : List Assignment
+dummyAssignments2 =
+    [ { id = "pqr789"
+      , complete = False
+      , day = Date.Tue
+      , name = "Chapter Two"
+      , description = ""
+      , subject = reading
+      }
+    , { id = "stu012"
+      , complete = False
+      , day = Date.Tue
+      , name = "Chapter Two"
+      , description = ""
+      , subject = writing
+      }
+    , { id = "fjg123"
+      , complete = False
+      , day = Date.Wed
+      , name = "Chapter Three"
+      , description = ""
+      , subject = writing
+      }
+    , { id = "fjg123"
+      , complete = False
+      , day = Date.Sat
+      , name = "Chapter Seventeen"
       , description = ""
       , subject = writing
       }
@@ -237,15 +290,30 @@ weekHeader =
 
 subjectsGroupings : List Work -> Html Msg
 subjectsGroupings works =
-    ol [ class "subject-groupings" ]
-        -- todo get list of subjects from actual work assignments
-        (List.map (workItems works) subjects)
+    let
+        -- todo filter by work assignments actual subjects
+        allAssignmentSubjects =
+            List.concatMap getSubjects works
+
+        applicableSubjects =
+            -- this ensure unique only subjects are iterated over
+            -- todo find a better way to do this
+            Set.toList (Set.fromList allAssignmentSubjects)
+    in
+        ol [ class "subject-groupings" ]
+            -- todo get list of subjects from actual work assignments
+            (List.map (workItems works) applicableSubjects)
+
+
+getSubjects : Work -> List Subject
+getSubjects work =
+    List.map (\ass -> ass.subject) work.assignments
 
 
 workItems : List Work -> Subject -> Html Msg
 workItems works subject =
     li [ class "subject" ]
-        [ text subject.name
+        [ text (snd subject)
         , ul [ class "works" ]
             (List.map (work subject) works)
         ]
@@ -270,7 +338,7 @@ assignment assignment =
     li [ class "assignment" ]
         [ text assignment.name
         , text ", "
-        , text assignment.subject.name
+        , text (dayOfWeek assignment.day)
         ]
 
 
@@ -287,7 +355,7 @@ subjectChoices =
 subjectChoice : Subject -> Html Msg
 subjectChoice subject =
     li [ class "subject" ]
-        [ text subject.name ]
+        [ text (snd subject) ]
 
 
 
@@ -310,4 +378,29 @@ subjectChoice subject =
 
 getAssignmentsForSubject : Subject -> List Assignment -> List Assignment
 getAssignmentsForSubject subject assignments =
-    List.filter (\assignment -> assignment.subject.id == subject.id) assignments
+    List.filter (\assignment -> (fst assignment.subject) == (fst subject)) assignments
+
+
+dayOfWeek : Date.Day -> String
+dayOfWeek day =
+    case day of
+        Date.Mon ->
+            "Monday"
+
+        Date.Tue ->
+            "Tuesday"
+
+        Date.Wed ->
+            "Wednesday"
+
+        Date.Thu ->
+            "Thursday"
+
+        Date.Fri ->
+            "Friday"
+
+        Date.Sat ->
+            "Saturday"
+
+        Date.Sun ->
+            "Sunday"
