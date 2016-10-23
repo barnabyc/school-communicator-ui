@@ -336,7 +336,8 @@ assignments assignments =
 assignment : Assignment -> Html Msg
 assignment assignment =
     li [ class "assignment" ]
-        [ text assignment.name
+        [ input [ type' "checkbox", checked assignment.complete ] []
+        , text assignment.name
         , text ", "
         , text (dayOfWeek assignment.day)
         ]
