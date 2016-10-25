@@ -3,6 +3,7 @@ module WorkPlans exposing (..)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Date
 import Date.Extra.Create exposing (..)
 import Set
@@ -16,6 +17,7 @@ type Msg
     | FetchSucceed
     | FetchFail
     | Manage
+    | CompleteAssignment String Bool
 
 
 type alias Plan =
@@ -259,7 +261,7 @@ view plan =
         [ class "work-plans wrapper" ]
         [ section
             [ id "content" ]
-            [ picker
+            [ studentPicker
             , weekHeader
             , subjectsGroupings plan.work
             , subjectChoices
@@ -267,8 +269,8 @@ view plan =
         ]
 
 
-picker : Html Msg
-picker =
+studentPicker : Html Msg
+studentPicker =
     select
         [ class "viewable-plans picker" ]
         [ option [] [ text "View work plan for" ]
@@ -336,7 +338,12 @@ assignments assignments =
 assignment : Assignment -> Html Msg
 assignment assignment =
     li [ class "assignment" ]
-        [ input [ type' "checkbox", checked assignment.complete ] []
+        [ input
+            [ type' "checkbox"
+            , checked assignment.complete
+            , onClick (CompleteAssignment assignment.id (not assignment.complete))
+            ]
+            []
         , text assignment.name
         , text ", "
         , text (dayOfWeek assignment.day)

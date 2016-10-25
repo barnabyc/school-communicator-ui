@@ -38,6 +38,29 @@ update msg model =
         Manage ->
             ( model, Cmd.none )
 
+        -- todo restructure all this so it's actually usable...
+        --Record { -- Plan
+        --  List : [ -- Works
+        --    Record { -- Work
+        --      List : [ -- Assignments
+        --        Record { -- Assignment
+        --          Bool -- completed
+        --        }
+        --      ]
+        --    }
+        --  ]
+        --}
+        CompleteAssignment id isComplete ->
+            let
+                updateAssignment assignment =
+                    if assignment.id == id then
+                        { assignment | complete = isComplete }
+                    else
+                        assignment
+            in
+                { model | assignments = List.map updateAssignment model.assignments }
+                    ! []
+
 
 subscriptions : Plan -> Sub Msg
 subscriptions model =
