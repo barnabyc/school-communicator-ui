@@ -85,11 +85,12 @@ getAssignmentById model id =
         tupledAssignments =
             List.map (\ass -> ( ass.id, ass )) assignments
 
-        -- convert them to a dictionary
-        dict =
+        -- convert them to a dictionary for easy querying
+        assignmentsById =
             Dict.fromList tupledAssignments
     in
-        Dict.get id dict
+        -- query for assignment by id
+        Dict.get id assignmentsById
 
 
 getAllAssignments : Plan -> List Assignment
