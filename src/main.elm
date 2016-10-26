@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import WorkPlans exposing (..)
 import Html.App as Html
+import Dict exposing (..)
 
 
 main =
@@ -52,16 +53,45 @@ update msg model =
         --}
         CompleteAssignment id isComplete ->
             let
-                updateAssignment assignment =
-                    if assignment.id == id then
-                        { assignment | complete = isComplete }
-                    else
-                        assignment
+                assignment =
+                    getAssignmentById model id
+
+                updatedAssignment =
+                    Maybe.map (\ass -> { ass | complete = isComplete }) assignment
+
+                -- todo update the work record too
             in
-                { model | assignments = List.map updateAssignment model.assignments }
-                    ! []
+                -- todo change this none to a Save
+                ( model, Cmd.none )
 
 
 subscriptions : Plan -> Sub Msg
 subscriptions model =
     Sub.none
+
+
+
+-- update helpers
+
+
+getAssignmentById : Plan -> String -> Maybe Assignment
+getAssignmentById model id =
+    let
+        -- get all assignments
+        assignments =
+            getAllAssignments model
+
+        -- make them comparable tuples
+        tupledAssignments =
+            List.map (\ass -> ( ass.id, ass )) assignments
+
+        -- convert them to a dictionary
+        dict =
+            Dict.fromList tupledAssignments
+    in
+        Dict.get id dict
+
+
+getAllAssignments : Plan -> List Assignment
+getAllAssignments model =
+    List.concatMap (\work -> work.assignments) model.work

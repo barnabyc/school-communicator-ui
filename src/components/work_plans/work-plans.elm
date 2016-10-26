@@ -241,7 +241,7 @@ dummyAssignments2 =
       , description = ""
       , subject = writing
       }
-    , { id = "fjg123"
+    , { id = "zzz123"
       , complete = False
       , day = Date.Sat
       , name = "Chapter Seventeen"
@@ -347,7 +347,19 @@ assignment assignment =
         , text assignment.name
         , text ", "
         , text (dayOfWeek assignment.day)
+        , text ", "
+        , completed assignment.complete
         ]
+
+
+completed : Bool -> Html Msg
+completed complete =
+    case complete of
+        True ->
+            text "true"
+
+        False ->
+            text "false"
 
 
 
