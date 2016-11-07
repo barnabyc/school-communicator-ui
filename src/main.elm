@@ -56,9 +56,14 @@ update msg model =
                 assignment =
                     getAssignmentById model id
 
+                work =
+                    getWorkByAssignment model.work assignment
+
                 updatedAssignment =
                     Maybe.map (\ass -> { ass | complete = isComplete }) assignment
 
+                --updatedWork =
+                --    Maybe.map (\work -> { work | assignments = updatedAssignment :: assignments }) work
                 -- todo update the work record too
             in
                 -- todo change this none to a Save
@@ -72,6 +77,18 @@ subscriptions model =
 
 
 -- update helpers
+
+
+updateElement : List a -> a -> List a
+updateElement list indexToFocusOn =
+    let
+        toggle index ( id, task ) =
+            if index == indexToFocusOn then
+                ( id, { task | focus = True } )
+            else
+                ( id, { task | focus = False } )
+    in
+        List.indexedMap toggle list
 
 
 getAssignmentById : Plan -> String -> Maybe Assignment
@@ -91,6 +108,17 @@ getAssignmentById model id =
     in
         -- query for assignment by id
         Dict.get id assignmentsById
+
+
+getWorkByAssignment : List Work -> Maybe Assignment -> Maybe Work
+getWorkByAssignment works assignment =
+    let
+        filteredWork =
+            List.filter (\work -> List.member assignment work.assignments) works
+    in
+        case assignment of
+            Just assignment ->
+                List.head filteredWork
 
 
 getAllAssignments : Plan -> List Assignment

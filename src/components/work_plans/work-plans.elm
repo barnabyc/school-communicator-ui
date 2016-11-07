@@ -284,9 +284,9 @@ studentPicker =
 weekHeader : Html Msg
 weekHeader =
     header []
-        [ a [] [ text "&lt; Last week" ]
+        [ a [] [ text "< Last week" ]
         , span [] [ text "Week of {foo} {calendar}" ]
-        , a [] [ text "&gt; Next week" ]
+        , a [] [ text "Next week >" ]
         ]
 
 
