@@ -17,7 +17,7 @@ type Msg
     | FetchSucceed
     | FetchFail
     | Manage
-    | CompleteAssignment String Bool
+    | CompleteAssignment String String Bool
 
 
 type alias Plan =
@@ -325,23 +325,23 @@ work : Subject -> Work -> Html Msg
 work subject work =
     li [ class "work" ]
         [ text work.source.title
-        , assignments (getAssignmentsForSubject subject work.assignments)
+        , assignments work (getAssignmentsForSubject subject work.assignments)
         ]
 
 
-assignments : List Assignment -> Html Msg
-assignments assignments =
+assignments : Work -> List Assignment -> Html Msg
+assignments work assignments =
     ol [ class "assignments" ]
-        (List.map assignment assignments)
+        (List.map (assignment work) assignments)
 
 
-assignment : Assignment -> Html Msg
-assignment assignment =
+assignment : Work -> Assignment -> Html Msg
+assignment work assignment =
     li [ class "assignment" ]
         [ input
             [ type' "checkbox"
             , checked assignment.complete
-            , onClick (CompleteAssignment assignment.id (not assignment.complete))
+            , onClick (CompleteAssignment work.id assignment.id (not assignment.complete))
             ]
             []
         , text assignment.name

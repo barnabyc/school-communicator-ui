@@ -51,20 +51,21 @@ update msg model =
         --    }
         --  ]
         --}
-        CompleteAssignment id isComplete ->
+        CompleteAssignment workId assignmentId isComplete ->
             let
-                assignment =
-                    getAssignmentById model id
-
                 work =
-                    getWorkByAssignment model.work assignment
+                    getWorkById model workId
 
+                -- todo map over work's assignments
                 updatedAssignment =
                     Maybe.map (\ass -> { ass | complete = isComplete }) assignment
 
-                --updatedWork =
-                --    Maybe.map (\work -> { work | assignments = updatedAssignment :: assignments }) work
-                -- todo update the work record too
+                --complete title postID post =
+                --    if post.id == postID then
+                --        { post | title = title }
+                --    else
+                --        post
+                --Maybe.map (setTitleAtID title postID) model.posts , Effects.none
             in
                 -- todo change this none to a Save
                 ( model, Cmd.none )
@@ -79,48 +80,7 @@ subscriptions model =
 -- update helpers
 
 
-updateElement : List a -> a -> List a
-updateElement list indexToFocusOn =
-    let
-        toggle index ( id, task ) =
-            if index == indexToFocusOn then
-                ( id, { task | focus = True } )
-            else
-                ( id, { task | focus = False } )
-    in
-        List.indexedMap toggle list
-
-
-getAssignmentById : Plan -> String -> Maybe Assignment
-getAssignmentById model id =
-    let
-        -- get all assignments
-        assignments =
-            getAllAssignments model
-
-        -- make them comparable tuples
-        tupledAssignments =
-            List.map (\ass -> ( ass.id, ass )) assignments
-
-        -- convert them to a dictionary for easy querying
-        assignmentsById =
-            Dict.fromList tupledAssignments
-    in
-        -- query for assignment by id
-        Dict.get id assignmentsById
-
-
-getWorkByAssignment : List Work -> Maybe Assignment -> Maybe Work
-getWorkByAssignment works assignment =
-    let
-        filteredWork =
-            List.filter (\work -> List.member assignment work.assignments) works
-    in
-        case assignment of
-            Just assignment ->
-                List.head filteredWork
-
-
-getAllAssignments : Plan -> List Assignment
-getAllAssignments model =
-    List.concatMap (\work -> work.assignments) model.work
+getWorkById : Plan -> String -> Maybe Work
+getWorkById model id =
+    List.head
+        (List.filter (\work -> work.id == id) model.work)
