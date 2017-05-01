@@ -1,29 +1,32 @@
-module Decoders exposing (..)
+module CommunicationCenter.MessagesDecoder exposing (decodeMessages)
 
-import Types exposing (Message, Replies, User, Metadata, ReadReceipt, Attachment, Image)
-import Json.Decode as Json exposing ((:=))
+import CommunicationCenter.Message exposing (Message)
+import CommunicationCenter.User exposing (User)
+import CommunicationCenter.Metadata exposing (Metadata)
+import CommunicationCenter.ReadReceipt exposing (ReadReceipt)
+import CommunicationCenter.Attachment exposing (Attachment)
+import CommunicationCenter.Image exposing (Image)
+import Json.Decode as Json
 import Json.Decode.Extra as JsonExtra
+
+
+-- todo: replace (:=) with `field` in 0.18 and removing Json.Helpers
+
+import Json.Helpers exposing ((:=))
 
 
 decodeUser : Json.Decoder User
 decodeUser =
-    Json.object2
+    Json.map2
         User
         ("uuid" := Json.string)
         ("name" := Json.string)
 
 
-decodeReplies : Json.Decoder Replies
-decodeReplies =
-    Json.object1
-        Types.Replies
-        decodeMessages
-
-
 decodeReadreceipts : Json.Decoder (List ReadReceipt)
 decodeReadreceipts =
     Json.list
-        (Json.object2
+        (Json.map2
             ReadReceipt
             ("author" := decodeUser)
             ("created" := JsonExtra.date)
@@ -37,7 +40,7 @@ decodeRecipients =
 
 decodeMetadata : Json.Decoder Metadata
 decodeMetadata =
-    Json.object5
+    Json.map5
         Metadata
         ("readReceipts" := decodeReadreceipts)
         ("author" := decodeUser)
@@ -48,7 +51,7 @@ decodeMetadata =
 
 decodeImage : Json.Decoder Image
 decodeImage =
-    Json.object2
+    Json.map2
         Image
         ("url" := Json.string)
         ("description" := Json.string)
@@ -57,18 +60,19 @@ decodeImage =
 decodeMessages : Json.Decoder (List Message)
 decodeMessages =
     Json.list
-        (Json.object5
+        (Json.map6
             Message
+            ("uuid" := Json.string)
             ("subject" := Json.string)
             ("body" := Json.string)
             ("attachments"
                 := Json.list
-                    (Json.object2
+                    (Json.map2
                         Attachment
                         ("image" := decodeImage)
                         ("meta" := decodeMetadata)
                     )
             )
-            ("replies" := decodeReplies)
+            ("replies" := Json.list Json.string)
             ("meta" := decodeMetadata)
         )

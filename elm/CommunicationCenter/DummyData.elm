@@ -1,7 +1,8 @@
-module DummyData exposing (..)
+module CommunicationCenter.DummyData exposing (..)
 
+import CommunicationCenter.Message exposing (Message)
+import CommunicationCenter.User exposing (User)
 import Date
-import Types exposing (Model, Message, Replies, User, Msg)
 
 
 -- DUMMY DATA
@@ -12,17 +13,18 @@ dummyUser =
     User "f8b3541ae8c0439cb31100ad49c4673f" "Johnny Chow"
 
 
-dummyModel : Model
-dummyModel =
-    Model [ dummyMessage, dummyMessage, dummyMessage ] dummyUser
-
-
 dummyMessage : Message
 dummyMessage =
-    { subject = "Birthdays"
+    { uuid = "xyz321cba987"
+    , subject = "Birthdays"
     , body = "It's my birthday!"
-    , attachments = []
-    , replies = Types.Replies [ dummyReply, dummyReply, dummyReply ]
+    , attachments =
+        []
+    , replies =
+        [ "abc" ]
+        --, replies =
+        --    Just
+        --        ([ "abc" ])
     , meta =
         { readReceipts = []
         , author = User "123abc456def" "Admin"
@@ -35,10 +37,13 @@ dummyMessage =
 
 dummyReply : Message
 dummyReply =
-    { subject = ""
+    { uuid = "abc"
+    , subject = ""
     , body = "Happy Birthday, Mom!"
-    , attachments = []
-    , replies = Types.Replies []
+    , attachments =
+        []
+        --, replies = Nothing
+    , replies = []
     , meta =
         { readReceipts = []
         , author = User "987zyx654wvu" "Bibs"
