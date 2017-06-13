@@ -10,7 +10,7 @@ import AuthenticatedHttp exposing (get, post)
 import CommunicationCenter.Message exposing (Message)
 import CommunicationCenter.User exposing (User)
 import CommunicationCenter.MessagesDecoder exposing (decodeMessages)
-import CommunicationCenter.DummyData as DummData exposing (dummyMessage, dummyReply, dummyUser)
+import CommunicationCenter.DummyData as DummyData
 
 
 type alias Model =
@@ -33,12 +33,12 @@ init =
 
 dummyModel : Model
 dummyModel =
-    Model [ DummData.dummyMessage, DummData.dummyMessage, DummData.dummyMessage ] DummData.dummyUser
+    Model [ DummyData.dummyMessage, DummyData.dummyMessage, DummyData.dummyMessage ] DummyData.dummyUser
 
 
 model : Model
 model =
-    DummData.dummyModel
+    dummyModel
 
 
 

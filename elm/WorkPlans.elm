@@ -117,6 +117,7 @@ view plan =
             [ studentPicker
             , weekHeader
             , subjectsGroupings plan.work
+            , text "Subjects:"
             , subjectChoices
             ]
         ]
