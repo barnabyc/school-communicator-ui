@@ -10,7 +10,7 @@ import Task exposing (Task)
 
 type alias Student =
     { name : Maybe String
-    , assignments : List (Maybe String)
+    , assignments : Maybe (List (Maybe String))
     }
 
 
@@ -18,12 +18,12 @@ studentRequest : Request Query Student
 studentRequest =
     let
         studentId =
-            Var.required "studentId" .studentId Var.studentId
+            Var.required "studentId" .studentId Var.id
 
         pageSize =
             Var.optional "pageSize" .pageSize (Var.nullable Var.int) (Just 3)
 
-        planetsFragment =
+        assignments =
             fragment "assignemnts"
                 (onType "Assignment")
                 (extract
@@ -90,7 +90,7 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscription = subscription
+        , subscriptions = subscriptions
         }
 
 
@@ -100,7 +100,7 @@ init =
 
 
 view : Model -> Html Msg
-view mode =
+view model =
     div []
         [ model |> toString |> text ]
 
