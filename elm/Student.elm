@@ -8,14 +8,18 @@ import GraphQL.Client.Http as GraphQLClient
 import Task exposing (Task)
 
 
+type alias Assignment =
+    { title : String }
+
+
 type alias Student =
-    { name : Maybe String
-    , assignments : Maybe (List (Maybe String))
+    { name : String
+    , assignments : List Assignment
     }
 
 
-studentRequest : Request Query Student
-studentRequest =
+studentQuery : Document Query Student { vars | studentId : String }
+studentQuery =
     let
         studentId =
             Var.required "studentId" .studentId Var.id
@@ -23,29 +27,32 @@ studentRequest =
         pageSize =
             Var.optional "pageSize" .pageSize (Var.nullable Var.int) (Just 3)
 
-        assignments =
-            fragment "assignemnts"
-                (onType "Assignment")
-                (extract
-                    (field "assignmentConnection"
-                        [ ( "first", Arg.variable pageSize ) ]
-                        (connectionNodes (extract (field "title" [] (nullable string))))
-                    )
+        assignment =
+            object Assignment
+                |> with (field "title" [] string)
+
+        student =
+            object Student
+                |> with (field "name" [] string)
+                |> with (field "assignments" [] (list assignment))
+
+        queryRoot =
+            extract
+                (field "Student"
+                    [ ( "id", Arg.variable studentId ) ]
+                    student
                 )
     in
-        extract
-            (field "student"
-                [ ( "studentId", Arg.variable studentId ) ]
-                (object Student
-                    |> with (field "name" [] (nullable string))
-                    |> with (fragmentSpread assignments)
-                )
-            )
-            |> queryDocument
-            |> request
-                { studentId = "abc123def456"
-                , pageSize = Nothing
-                }
+        queryDocument queryRoot
+
+
+studentQueryRequest : Request Query Student
+studentQueryRequest =
+    studentQuery
+        |> request
+            { studentId = "cj58zq2x32o5y0129fzxjc101"
+            , pageSize = Nothing
+            }
 
 
 connectionNodes : ValueSpec NonNull ObjectType result vars -> ValueSpec NonNull ObjectType (List result) vars
@@ -75,12 +82,12 @@ type Msg
 
 sendQueryRequest : Request Query a -> Task GraphQLClient.Error a
 sendQueryRequest request =
-    GraphQLClient.sendQuery "https://api.graph.cool/simple/v1/cj3dsaht20d6o0104tj3dndpp\n" request
+    GraphQLClient.sendQuery "https://api.graph.cool/simple/v1/cj3dsaht20d6o0104tj3dndpp" request
 
 
 sendStudentQuery : Cmd Msg
 sendStudentQuery =
-    sendQueryRequest studentRequest
+    sendQueryRequest studentQueryRequest
         |> Task.attempt ReceiveQueryResponse
 
 
