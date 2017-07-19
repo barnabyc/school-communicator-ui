@@ -6,6 +6,7 @@ import GraphQL.Request.Builder.Arg as Arg
 import GraphQL.Request.Builder.Variable as Var
 import GraphQL.Client.Http as GraphQLClient
 import Task exposing (Task)
+import String exposing (join)
 
 
 type alias Assignment =
@@ -55,19 +56,6 @@ studentQueryRequest =
             }
 
 
-connectionNodes : ValueSpec NonNull ObjectType result vars -> ValueSpec NonNull ObjectType (List result) vars
-connectionNodes spec =
-    extract
-        (field "edges"
-            []
-            (list
-                (extract
-                    (field "node" [] spec)
-                )
-            )
-        )
-
-
 type alias StudentResponse =
     Result GraphQLClient.Error Student
 
@@ -108,8 +96,25 @@ init =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ model |> toString |> text ]
+    let
+        content =
+            case model of
+                Nothing ->
+                    "Loading..."
+
+                Just resp ->
+                    case resp of
+                        Err err ->
+                            "Error loading!"
+
+                        Ok student ->
+                            student.name
+                                ++ " should work on: "
+                                ++ (join " and " (List.map (\ass -> ass.title) student.assignments))
+    in
+        div []
+            -- [ model |> toString |> text ]
+            [ content |> text ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
