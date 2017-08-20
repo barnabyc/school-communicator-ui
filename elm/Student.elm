@@ -7,6 +7,8 @@ import GraphQL.Request.Builder.Variable as Var
 import GraphQL.Client.Http as GraphQLClient
 import Task exposing (Task)
 import String exposing (join)
+import WorkPlans.Subjects as Subjects exposing (..)
+import WorkPlans.Types exposing (..)
 
 
 type alias Assignment =
@@ -66,6 +68,7 @@ type alias Model =
 
 type Msg
     = ReceiveQueryResponse StudentResponse
+    | WorkPlansViews WorkPlans.Types.Msg
 
 
 sendQueryRequest : Request Query a -> Task GraphQLClient.Error a
@@ -94,6 +97,21 @@ init =
     ( Nothing, sendStudentQuery )
 
 
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        ReceiveQueryResponse response ->
+            ( Just response, Cmd.none )
+
+        WorkPlansViews _ ->
+            ( model, Cmd.none )
+
+
 view : Model -> Html Msg
 view model =
     let
@@ -113,15 +131,7 @@ view model =
                                 ++ (join " and " (List.map (\ass -> ass.title) student.assignments))
     in
         div []
-            -- [ model |> toString |> text ]
-            [ content |> text ]
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update (ReceiveQueryResponse response) model =
-    ( Just response, Cmd.none )
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+            [ content |> text
+            , text "Subjects:"
+            , Subjects.choices |> Html.map WorkPlansViews
+            ]

@@ -1,5 +1,10 @@
 module WorkPlans.Subjects exposing (..)
 
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Tuple exposing (first, second)
+import WorkPlans.Types as Types exposing (..)
+
 
 type alias Subject =
     ( Int, String )
@@ -62,3 +67,19 @@ all =
     , personalCare
     , other
     ]
+
+
+
+-- views
+
+
+choices : Html Msg
+choices =
+    ol [ class "subject-choices" ]
+        (List.map choice all)
+
+
+choice : Subject -> Html Msg
+choice subject =
+    li [ class "subject" ]
+        [ text (second subject) ]

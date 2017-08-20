@@ -10,21 +10,31 @@ import Date exposing (Day(..))
 
 import Set
 import Tuple exposing (first, second)
-import WorkPlans.Subjects as Subjects exposing (..)
+import WorkPlans.Subjects as Subjects exposing (Subject, choices)
 import WorkPlans.Plan exposing (..)
 import WorkPlans.Work exposing (..)
 import WorkPlans.Assignment exposing (..)
+import WorkPlans.Types as Types exposing (..)
 import WorkPlans.DummyData as DummyData exposing (..)
-
-
-init : ( Plan, Cmd Msg )
-init =
-    ( model, Cmd.none )
 
 
 model : Plan
 model =
     DummyData.dummyPlan
+
+
+main =
+    Html.program
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
+
+
+init : ( Plan, Cmd Msg )
+init =
+    ( model, Cmd.none )
 
 
 subscriptions : Plan -> Sub Msg
@@ -93,18 +103,6 @@ getWorkById model id =
 
 
 
--- types
-
-
-type Msg
-    = Fetch
-    | FetchSucceed
-    | FetchFail
-    | Manage
-    | CompleteAssignment String String Bool
-
-
-
 -- views
 
 
@@ -118,7 +116,7 @@ view plan =
             , weekHeader
             , subjectsGroupings plan.work
             , text "Subjects:"
-            , subjectChoices
+            , Subjects.choices
             ]
         ]
 
@@ -218,21 +216,6 @@ completed complete =
 
 
 -- modals
-
-
-subjectChoices : Html Msg
-subjectChoices =
-    ol [ class "subject-choices" ]
-        (List.map subjectChoice Subjects.all)
-
-
-subjectChoice : Subject -> Html Msg
-subjectChoice subject =
-    li [ class "subject" ]
-        [ text (second subject) ]
-
-
-
 -- helpers
 --getWorksForSubject : Subject -> List Work -> List Work
 --getWorksForSubject subject works =
@@ -278,16 +261,3 @@ dayOfWeek day =
 
         Sun ->
             "Sunday"
-
-
-
--- main
-
-
-main =
-    Html.program
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        }
