@@ -1,4 +1,4 @@
-module WorkPlans.Assignment exposing (..)
+module WorkPlans.Assignment exposing (Assignment)
 
 import Date as Date exposing (..)
 import WorkPlans.Subjects as Subjects exposing (..)

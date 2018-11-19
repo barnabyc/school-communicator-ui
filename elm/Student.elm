@@ -1,18 +1,25 @@
 module Student exposing (..)
 
-import Html exposing (Html, div, text)
+import Html exposing (Html, div, text, ul, ol, li, span)
 import GraphQL.Request.Builder exposing (..)
 import GraphQL.Request.Builder.Arg as Arg
 import GraphQL.Request.Builder.Variable as Var
 import GraphQL.Client.Http as GraphQLClient
 import Task exposing (Task)
-import String exposing (join)
-import WorkPlans.Subjects as Subjects exposing (..)
+import WorkPlans.Subjects as Subjects exposing (choices)
 import WorkPlans.Types exposing (..)
+import List exposing (sortWith, head)
+import List.Extra exposing (groupWhile)
+
+
+type alias Subject =
+    { name : String }
 
 
 type alias Assignment =
-    { title : String }
+    { title : String
+    , subject : Subject
+    }
 
 
 type alias Student =
@@ -27,12 +34,14 @@ studentQuery =
         studentId =
             Var.required "studentId" .studentId Var.id
 
-        pageSize =
-            Var.optional "pageSize" .pageSize (Var.nullable Var.int) (Just 3)
+        subject =
+            object Subject
+                |> with (field "name" [] string)
 
         assignment =
             object Assignment
                 |> with (field "title" [] string)
+                |> with (field "subject" [] subject)
 
         student =
             object Student
@@ -54,7 +63,6 @@ studentQueryRequest =
     studentQuery
         |> request
             { studentId = "cj58zq2x32o5y0129fzxjc101"
-            , pageSize = Nothing
             }
 
 
@@ -118,20 +126,93 @@ view model =
         content =
             case model of
                 Nothing ->
-                    "Loading..."
+                    span [] [ text "Loading..." ]
 
                 Just resp ->
                     case resp of
                         Err err ->
-                            "Error loading!"
+                            span [] [ text "Error loading!" ]
 
                         Ok student ->
-                            student.name
-                                ++ " should work on: "
-                                ++ (join " and " (List.map (\ass -> ass.title) student.assignments))
+                            work student
     in
         div []
-            [ content |> text
-            , text "Subjects:"
-            , Subjects.choices |> Html.map WorkPlansViews
+            [ content
+            , div
+                []
+                [ text "Subjects:"
+                , Subjects.choices |> Html.map WorkPlansViews
+                ]
             ]
+
+
+subjectOrdering : Assignment -> Assignment -> Order
+subjectOrdering a b =
+    case compare a.subject.name b.subject.name of
+        LT ->
+            GT
+
+        EQ ->
+            EQ
+
+        GT ->
+            LT
+
+
+getGroupName : List Assignment -> Html Msg
+getGroupName assignmentGroup =
+    let
+        subjectName =
+            head assignmentGroup
+    in
+        case subjectName of
+            Nothing ->
+                text "<no assignments in group>"
+
+            Just assignment ->
+                text assignment.subject.name
+
+
+work : Student -> Html Msg
+work student =
+    let
+        sortedAssignments =
+            sortWith subjectOrdering student.assignments
+
+        assignmentsBySubject =
+            -- groupWhile requires the list to be sorted as it only considers adjacent members
+            groupWhile (\x y -> x.subject.name == y.subject.name) sortedAssignments
+
+        assignments =
+            List.concatMap
+                (\subjectGrouping ->
+                    [ li []
+                        [ (getGroupName subjectGrouping)
+                        , ul []
+                            (List.map
+                                (\assignment ->
+                                    li []
+                                        [ text assignment.title
+                                        ]
+                                )
+                                subjectGrouping
+                            )
+                        ]
+                    ]
+                )
+                assignmentsBySubject
+
+        items =
+            (text student.name) :: assignments
+    in
+        ul [] items
+
+
+
+-- assignmentsBySubject =
+--     [ [ { title = "1,000 words on Turnips", subject = { name = "Writing" } } ]
+--     , [ { title = "Draw a diagram of a water molecule", subject = { name = "The Arts" } } ]
+--     , [ { title = "Great Expectations", subject = { name = "Reading" } }
+--       , { title = "Pride and Prejudice", subject = { name = "Reading" } }
+--       ]
+--     ]
