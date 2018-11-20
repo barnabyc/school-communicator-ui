@@ -1,7 +1,9 @@
 module Main exposing (main)
 
 import Browser exposing (Document)
+import Browser.Navigation as Nav
 import Page.Home as Home
+import Route exposing (Route)
 
 
 type Model
@@ -10,7 +12,15 @@ type Model
 
 
 -- MODEL
--- todo: init
+
+
+init : Maybe Viewer -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init maybeViewer url navKey =
+    changeRouteTo (Route.fromUrl url)
+        (Redirect (Session.fromViewer navKey maybeViewer))
+
+
+
 -- VIEW
 
 
